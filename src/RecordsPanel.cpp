@@ -106,7 +106,7 @@ void RecordsPanel::onLastSleep(Message message) {
         >> currentStart;
     } catch (std::exception & e) {}
 
-    const std::int32_t awake = currentStart ? utils::now() - stop : currentStart - stop;
+    const std::int32_t awake = currentStart ?  currentStart - stop : utils::now() - stop;
     reply << "Awake " << utils::asElapsed(awake);
 
     if (currentStart) {
