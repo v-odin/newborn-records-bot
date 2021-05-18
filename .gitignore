@@ -1,0 +1,12 @@
+bin
+CMakeCache.txt
+CMakeFiles
+compile_commands.json
+install_manifest.txt
+Makefile
+*.a
+*.cbp
+*.cmake
+*.lnk
+*.so
+.vscode/
