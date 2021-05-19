@@ -9,7 +9,6 @@ find_path(TGBOT_INCLUDE_DIR tgbot/tgbot.h)
 
 find_library(TGBOT_LIBRARY TgBot)
 
-find_package(date CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
 
