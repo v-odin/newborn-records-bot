@@ -18,6 +18,7 @@ add_executable(newborn-records
     src/main.cpp
     src/NBRecordsBot.cpp
     src/RecordsPanel.cpp
+    src/Stats.cpp
     src/Utils.cpp
 )
 

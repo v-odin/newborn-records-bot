@@ -9,12 +9,13 @@ namespace nbrecords {
 NBRecordsBot::NBRecordsBot(std::string token, std::string dbfile) :
     Bot(token),
     d_db(dbfile),
-    d_recordsPanel(this)
+    d_recordsPanel(this),
+    d_stats(d_db)
 {
     initDB();
     getEvents().onCommand("start", asHandler(&NBRecordsBot::onStart));
     getEvents().onCommand("records", asHandler(&NBRecordsBot::onRecords));
-    getEvents().onCommand("stats", asHandler(&NBRecordsBot::onStats));
+    getEvents().onCommand("report", asHandler(&NBRecordsBot::onDayReport));
     getEvents().onAnyMessage(asHandler(&NBRecordsBot::onAnyMessage));
 }
 
@@ -71,8 +72,11 @@ void NBRecordsBot::onStart(Message message) {
     "/stats prompts stats panel");
 }
 
-void NBRecordsBot::onStats(Message message) {
-    getApi().sendMessage(message->chat->id, "Not implemented");
+void NBRecordsBot::onDayReport(Message message) {
+    std::stringstream reply;
+    reply << "📊 " << utils::asDate(utils::now()) << std::endl << std::endl;
+    reply << d_stats.dayReport(message->chat->id, utils::now());
+    getApi().sendMessage(message->chat->id, reply.str(), false, 0, nullptr, "Markdown");
 }
 
 } //namespace nbrecords

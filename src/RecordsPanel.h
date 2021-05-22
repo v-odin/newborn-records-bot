@@ -2,6 +2,7 @@
 #define RECORDSPANEL_H
 
 #include "Handler.h"
+#include "Stats.h"
 #include "Types.h"
 
 namespace nbrecords {
@@ -27,6 +28,7 @@ public:
 private:
     NBRecordsBot* d_bot;
     ReplyKeyboard d_keyboard;
+    Stats d_stats;
 
     void feed(Message, std::string);
     void sleep(Message, std::string);

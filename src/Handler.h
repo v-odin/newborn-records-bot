@@ -14,7 +14,7 @@ protected:
     Handler() = default;
     template <typename Function>
     auto asHandler(Function function) {
-        return [=](Message message){
+        return [function, this](Message message){
             std::invoke(function, static_cast<T*>(this), message);
         };
     }

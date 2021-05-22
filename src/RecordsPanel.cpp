@@ -6,7 +6,8 @@
 namespace nbrecords {
 
 RecordsPanel::RecordsPanel(NBRecordsBot* bot) :
-    d_bot(bot)
+    d_bot(bot),
+    d_stats(bot->db())
 {
     const std::string feedLeft = "🤱 left", feedRight = "🤱 right", lastFeed = "📋 feed";
     const std::string sleepStart = "😴 sleep", sleepStop = "☀️ wake up", lastSleep = "📋 sleep";
@@ -55,16 +56,7 @@ void RecordsPanel::feed(Message message, std::string side) {
 }
 
 void RecordsPanel::onLastFeed(Message message) {
-    d_bot->db() << "select * from records where chat = ? and name = ? order by time desc limit 1"
-        << message->chat->id
-        << "feed"
-        >> [&](int chat, std::string name, std::string arg, std::int32_t time) {
-                std::stringstream reply;
-                arg[0] = toupper(arg[0]);
-                reply << arg << " at " << utils::asClock(time) << std::endl
-                    << utils::asElapsed(utils::now() - time) << " ago";
-                d_bot->getApi().sendMessage(message->chat->id, reply.str());
-            };
+    d_bot->getApi().sendMessage(message->chat->id, d_stats.lastFeed(message->chat->id));
 }
 
 void RecordsPanel::onSleepStart(Message message) {
@@ -86,35 +78,7 @@ void RecordsPanel::sleep(Message message, std::string action) {
 }
 
 void RecordsPanel::onLastSleep(Message message) {
-    std::int32_t stop = 0, start = 0;
-    d_bot->db() << "select time from records where chat = ? and name = ? and arg = ? order by time desc limit 1"
-        << message->chat->id << "sleep" << "stop"
-        >> stop;
-
-    d_bot->db() << "select time from records where chat = ? and name = ? and arg = ? and time < ? ORDER by time desc limit 1"
-        << message->chat->id << "sleep" << "start" << stop
-        >> start;
-
-    std::stringstream reply;
-    reply << "Last sleep: " <<  utils::asClock(start) << " - " << utils::asClock(stop) << std::endl
-        << "Total " << utils::asElapsed(stop - start) << std::endl;
-
-    int currentStart = 0;
-    try {
-        d_bot->db() << "select time from records where chat = ? and name = ? and arg = ? and time > ? ORDER by time desc limit 1"
-        << message->chat->id << "sleep" << "start" << stop
-        >> currentStart;
-    } catch (std::exception & e) {}
-
-    const std::int32_t awake = currentStart ?  currentStart - stop : utils::now() - stop;
-    reply << "Awake " << utils::asElapsed(awake);
-
-    if (currentStart) {
-        reply << std::endl << std::endl << "Current sleep: " << utils::asClock(currentStart) << " - now"<< std::endl
-            << "Total " << utils::asElapsed(utils::now() - currentStart);
-    }
-
-    d_bot->getApi().sendMessage(message->chat->id, reply.str());
+    d_bot->getApi().sendMessage(message->chat->id, d_stats.lastSleep(message->chat->id));
 }
 
 void RecordsPanel::onDiaper(Message message){
@@ -127,15 +91,7 @@ void RecordsPanel::onDiaper(Message message){
 }
 
 void RecordsPanel::onLastDiaper(Message message) {
-    std::int32_t time = 0;
-    d_bot->db() << "select time from records where chat = ? and name = ? order by time desc limit 1"
-        << message->chat->id
-        << "diaper"
-        >> time;
-    std::stringstream reply;
-    reply << "Last diaper changed at " << utils::asClock(time)  << std::endl
-        << utils::asElapsed(utils::now() - time) << " ago";
-    d_bot->getApi().sendMessage(message->chat->id, reply.str());
+    d_bot->getApi().sendMessage(message->chat->id, d_stats.lastDiaper(message->chat->id));
 }
 
 } // namespace nbrecords

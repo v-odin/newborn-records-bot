@@ -13,24 +13,40 @@ std::int32_t now() {
     return duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
 }
 
-std::string asClock(std::int32_t unixTime, std::string format) {
+std::int32_t dayStart(std::int32_t time) {
+    using namespace std;
+    using namespace std::chrono;
+    using days = duration<int, ratio_multiply<hours::period, ratio<24> >::type>;
+    return duration_cast<days>(seconds(time)).count() * 24 * 3600;
+}
+
+std::string asClock(std::int32_t unixTime) {
+    return format(unixTime, "%H:%M");
+}
+
+std::string asDate(std::int32_t unixTime) {
+    return format(unixTime, "%d-%m-%Y");
+}
+
+std::string format(std::int32_t unixTime, std::string formatStr) {
     std::time_t time(unixTime);
     std::stringstream ss;
-    ss << std::put_time(localtime(&time), format.c_str());
+    ss << std::put_time(localtime(&time), formatStr.c_str());
     return ss.str();
 }
 
 std::string asElapsed(std::int32_t duration) {
     using namespace std;
-    auto sesonds = chrono::seconds(duration);
-    auto minutes = chrono::duration_cast<chrono::minutes>(sesonds);
-    auto hours = chrono::duration_cast<chrono::hours>(sesonds);
+    using namespace std::chrono;
+    auto sec = seconds(duration);
+    auto min = duration_cast<minutes>(sec);
+    auto h = duration_cast<hours>(sec);
 
     stringstream ss;
-    if (hours.count()) {
-        ss << hours.count() << "h ";
+    if (h.count()) {
+        ss << h.count() << "h ";
     }
-    ss << minutes.count() - hours.count() * 60 << "min";
+    ss << min.count() - h.count() * 60 << "min";
     return ss.str();
 }
 

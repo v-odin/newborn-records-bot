@@ -8,6 +8,7 @@
 #include <tgbot/Bot.h>
 
 #include "RecordsPanel.h"
+#include "Stats.h"
 #include "Types.h"
 
 namespace nbrecords {
@@ -24,12 +25,13 @@ public:
     void onAnyMessage(Message);
     void onRecords(Message);
     void onStart(Message);
-    void onStats(Message);
+    void onDayReport(Message);
 
 private:
     sqlite::database d_db;
     std::unordered_map<std::string, MessageListener> d_handlers;
     RecordsPanel d_recordsPanel;
+    Stats d_stats;
 
     void initDB();
 };

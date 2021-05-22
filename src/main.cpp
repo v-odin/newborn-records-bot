@@ -3,6 +3,8 @@
 
 #include "NBRecordsBot.h"
 
+#include "Utils.h"
+
 int main() {
     const char* token = getenv("TOKEN");
     if (!token) {
