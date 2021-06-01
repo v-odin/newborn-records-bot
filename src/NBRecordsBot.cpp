@@ -19,7 +19,7 @@ NBRecordsBot::NBRecordsBot(std::string token, std::string dbfile) :
     getEvents().onAnyMessage(asHandler(&NBRecordsBot::onAnyMessage));
 }
 
-void NBRecordsBot::start() {
+void NBRecordsBot::run() {
     try {
         getApi().deleteWebhook();
 

@@ -12,6 +12,6 @@ int main() {
         return 1;
     }
     nbrecords::NBRecordsBot bot(token, "dbfile.db");
-    bot.start();
+    bot.run();
     return 0;
 }

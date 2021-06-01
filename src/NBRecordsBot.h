@@ -17,7 +17,7 @@ class NBRecordsBot : public TgBot::Bot, public Handler<NBRecordsBot> {
 public:
     NBRecordsBot(std::string, std::string);
 
-    void start();
+    void run();
     sqlite::database& db();
     void addReplyHandler(const std::string&, MessageListener);
 
