@@ -9,6 +9,7 @@ find_path(TGBOT_INCLUDE_DIR tgbot/tgbot.h)
 
 find_library(TGBOT_LIBRARY TgBot)
 
+find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
 
@@ -23,7 +24,9 @@ add_executable(newborn-records
 )
 
 target_link_libraries(newborn-records
+    ${CMAKE_THREAD_LIBS_INIT}
     ${OPENSSL_LIBRARIES}
     ${TGBOT_LIBRARY}
     SQLite::SQLite3
+    ${CMAKE_DL_LIBS}
 )
