@@ -12,20 +12,16 @@ Stats::Stats(sqlite::database db) :
 
 std::string Stats::dayReport(std::int64_t chat, std::int32_t time) {
     std::stringstream result;
-    time = utils::dayStart(time);
+    std::int32_t dayStart = utils::dayStart(time);
 
     try {
         //Sleep
         result << "😴 slept ";
-        std::int32_t start = 0, total = 0;
+        std::int32_t start = dayStart, total = 0;
         std::stringstream sleepReport;
-        d_db << "select time from records where time < ? and name = 'sleep' and arg = 'start' and chat = ? order by time desc limit 1"
-            << time
-            << chat
-            >> start;
 
         d_db << "select arg,time from records where time > ? and name = 'sleep' and chat = ? order by time asc"
-            << time
+            << dayStart
             << chat
             >>[&](std::string action, std::int32_t eventTime) {
                 if (action == "start") {
@@ -47,7 +43,7 @@ std::string Stats::dayReport(std::int64_t chat, std::int32_t time) {
         int count = 0;
         std::stringstream feedReport;
         d_db << "select arg,time from records where time > ? and name = 'feed' and chat = ? order by time asc"
-            << time
+            << dayStart
             << chat
             >>[&](std::string side, std::int32_t eventTime) {
                 feedReport << utils::asClock(eventTime) << ": " << side << std::endl;
@@ -61,7 +57,7 @@ std::string Stats::dayReport(std::int64_t chat, std::int32_t time) {
         count = 0;
         std::stringstream diaperReport;
         d_db << "select time from records where time > ? and name = 'diaper' and chat = ? order by time asc"
-            << time
+            << dayStart
             << chat
             >>[&](std::int32_t eventTime) {
                 diaperReport << utils::asClock(eventTime) << std::endl;
