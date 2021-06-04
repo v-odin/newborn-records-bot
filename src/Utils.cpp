@@ -13,11 +13,20 @@ std::int32_t now() {
     return duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
 }
 
-std::int32_t dayStart(std::int32_t time) {
+std::int32_t dayStart(std::int32_t unixTime) {
     using namespace std;
     using namespace std::chrono;
-    using days = duration<int, ratio_multiply<hours::period, ratio<24> >::type>;
-    return duration_cast<days>(seconds(time)).count() * 24 * 3600;
+    using days = duration<int, ratio_multiply<hours::period, ratio<24>>::type>;
+
+    std::time_t time(unixTime);
+    const std::int32_t localTime = mktime(localtime(&time));
+    const std::int32_t localDayStart = duration_cast<days>(seconds(localTime)).count() * 24 * 3600;
+    time = localDayStart;
+
+    auto gmTime = gmtime(&time);
+    gmTime->tm_isdst = -1;
+
+    return mktime(gmTime);
 }
 
 std::string asClock(std::int32_t unixTime) {
