@@ -9,4 +9,5 @@ Makefile
 *.cmake
 *.lnk
 *.so
+*.code-workspace
 .vscode/

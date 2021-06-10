@@ -12,28 +12,37 @@ Stats::Stats(sqlite::database db) :
 
 std::string Stats::dayReport(std::int64_t chat, std::int32_t time) {
     std::stringstream result;
-    std::int32_t dayStart = utils::dayStart(time);
+    result << "📊 " << utils::asDate(time) << std::endl << std::endl;
 
+    std::int32_t dayStart = utils::dayStart(time);
+    std::int32_t dayEnd = utils::dayEnd(time);
     try {
         //Sleep
         result << "😴 slept ";
         std::int32_t start = dayStart, total = 0;
         std::stringstream sleepReport;
 
-        d_db << "select arg,time from records where time > ? and name = 'sleep' and chat = ? order by time asc"
+        d_db << "select arg,time from records where time > ? and time < ? and name = 'sleep' and chat = ? order by time asc"
             << dayStart
+            << dayEnd
             << chat
             >>[&](std::string action, std::int32_t eventTime) {
                 if (action == "start") {
                     start = eventTime;
-                } else {
+                } else if (start > 0) {
                     total += eventTime-start;
                     sleepReport << utils::asClock(start) << " - " << utils::asClock(eventTime) << " | " << utils::asElapsed(eventTime - start) << std::endl;
                     start = 0;
                 }
             };
         if (start) {
-            sleepReport << utils::asClock(start) << " - now  " << " | " << utils::asElapsed(utils::now() - start) << std::endl;
+            std::int32_t end = utils::now();
+            std::string endStr = "now";
+            if (dayEnd < end) {
+                end = dayEnd;
+                endStr = utils::asClock(dayEnd);
+            }
+            sleepReport << utils::asClock(start) << " - " << endStr << " | " << utils::asElapsed(end - start) << std::endl;
         }
         result << utils::asElapsed(total);
         result << "``` "  << std::endl << sleepReport.str() << "```";
@@ -42,8 +51,9 @@ std::string Stats::dayReport(std::int64_t chat, std::int32_t time) {
         result << std::endl << "🤱 fed ";
         int count = 0;
         std::stringstream feedReport;
-        d_db << "select arg,time from records where time > ? and name = 'feed' and chat = ? order by time asc"
+        d_db << "select arg,time from records where time > ? and time < ? and name = 'feed' and chat = ? order by time asc"
             << dayStart
+            << dayEnd
             << chat
             >>[&](std::string side, std::int32_t eventTime) {
                 feedReport << utils::asClock(eventTime) << ": " << side << std::endl;
@@ -56,8 +66,9 @@ std::string Stats::dayReport(std::int64_t chat, std::int32_t time) {
         result << std::endl << "🚼 diaper ";
         count = 0;
         std::stringstream diaperReport;
-        d_db << "select time from records where time > ? and name = 'diaper' and chat = ? order by time asc"
+        d_db << "select time from records where time > ? and time < ? and name = 'diaper' and chat = ? order by time asc"
             << dayStart
+            << dayEnd
             << chat
             >>[&](std::int32_t eventTime) {
                 diaperReport << utils::asClock(eventTime) << std::endl;
