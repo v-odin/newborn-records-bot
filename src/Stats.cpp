@@ -42,6 +42,7 @@ std::string Stats::dayReport(std::int64_t chat, std::int32_t time) {
                 end = dayEnd;
                 endStr = utils::asClock(dayEnd);
             }
+            total += end - start;
             sleepReport << utils::asClock(start) << " - " << endStr << " | " << utils::asElapsed(end - start) << std::endl;
         }
         result << utils::asElapsed(total);
