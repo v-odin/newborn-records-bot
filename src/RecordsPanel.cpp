@@ -9,12 +9,12 @@ RecordsPanel::RecordsPanel(NBRecordsBot* bot) :
     d_bot(bot),
     d_stats(bot->db())
 {
-    const std::string feedLeft = "🤱 left", feedRight = "🤱 right", lastFeed = "📋 feed";
+    const std::string feedLeft = "🤱 left", feedSpoon = "🥄 spoon", feedRight = "🤱 right", lastFeed = "📋 feed";
     const std::string sleepStart = "😴 sleep", sleepStop = "☀️ wake up", lastSleep = "📋 sleep";
     const std::string diaper = "🚼 change diaper", lastDiaper = "📋 diaper";
 
     d_keyboard = utils::createReplyKeyboard({
-        {feedLeft, feedRight},
+        {feedLeft, feedSpoon, feedRight},
         {sleepStart, sleepStop},
         {diaper},
         {lastFeed, lastSleep, lastDiaper}
@@ -23,6 +23,7 @@ RecordsPanel::RecordsPanel(NBRecordsBot* bot) :
     // keyboard->selective = true;
 
     d_bot->addReplyHandler(feedLeft, asHandler(&RecordsPanel::onFeedLeft));
+    d_bot->addReplyHandler(feedSpoon, asHandler(&RecordsPanel::onFeedSpoon));
     d_bot->addReplyHandler(feedRight, asHandler(&RecordsPanel::onFeedRight));
     d_bot->addReplyHandler(lastFeed, asHandler(&RecordsPanel::onLastFeed));
     d_bot->addReplyHandler(sleepStart, asHandler(&RecordsPanel::onSleepStart));
@@ -40,6 +41,10 @@ void RecordsPanel::show(std::int64_t chatId) {
 
 void RecordsPanel::onFeedLeft(Message message) {
     feed(message, "left");
+}
+
+void RecordsPanel::onFeedSpoon(Message message) {
+    feed(message, "spoon");
 }
 
 void RecordsPanel::onFeedRight(Message message) {
