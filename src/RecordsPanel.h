@@ -27,10 +27,12 @@ namespace nbrecords
         void onLastSleep(Message);
         void onDiaper(Message);
         void onLastDiaper(Message);
+        void onLastDeleteRecord(CallbackQuery);
 
     private:
         NBRecordsBot *d_bot;
         ReplyKeyboard d_keyboard;
+        InlineKeyboard d_panelResponseKeyboard;
         Stats d_stats;
 
         void feed(Message, std::string);

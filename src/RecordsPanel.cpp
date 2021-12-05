@@ -22,6 +22,9 @@ namespace nbrecords
         // TODO: to make selecetive – so far does not work as expected
         // keyboard->selective = true;
 
+        const std::string del = "❌";
+        d_panelResponseKeyboard = utils::createInlineKeyboard({{del}});
+
         d_bot->addReplyHandler(feedSpoon, asHandler(&RecordsPanel::onFeedSpoon));
         d_bot->addReplyHandler(feedBottle, asHandler(&RecordsPanel::onFeedRight));
         d_bot->addReplyHandler(lastFeed, asHandler(&RecordsPanel::onLastFeed));
@@ -30,6 +33,7 @@ namespace nbrecords
         d_bot->addReplyHandler(lastSleep, asHandler(&RecordsPanel::onLastSleep));
         d_bot->addReplyHandler(diaper, asHandler(&RecordsPanel::onDiaper));
         d_bot->addReplyHandler(lastDiaper, asHandler(&RecordsPanel::onLastDiaper));
+        d_bot->addCallbackHandler(del, asHandler(&RecordsPanel::onLastDeleteRecord));
     }
 
     void RecordsPanel::show(std::int64_t chatId)
@@ -61,12 +65,12 @@ namespace nbrecords
 
     void RecordsPanel::feed(Message message, std::string side)
     {
-        d_bot->db() << "insert into records (chat, name, arg, time) values(?, ?, ?, ?);"
-                    << message->chat->id << "feed" << side << message->date;
-
         std::stringstream reply;
         reply << "Feeding " << side << " at " << utils::asClock(message->date);
-        d_bot->getApi().sendMessage(message->chat->id, reply.str());
+        const auto replyMsg = d_bot->getApi().sendMessage(message->chat->id, reply.str(), false, 0, d_panelResponseKeyboard, "Markdown");
+
+        d_bot->db() << "insert into records (chat, name, arg, time, msgId) values(?, ?, ?, ?, ?);"
+                    << message->chat->id << "feed" << side << message->date << replyMsg->messageId;
     }
 
     void RecordsPanel::onLastFeed(Message message)
@@ -86,14 +90,15 @@ namespace nbrecords
 
     void RecordsPanel::sleep(Message message, std::string action)
     {
-        d_bot->db() << "insert into records (chat, name, arg, time) values(?, ?, ?, ?);"
-                    << message->chat->id << "sleep" << action << message->date;
 
         std::stringstream reply;
         action[0] = toupper(action[0]);
         reply << action << " sleeping"
               << " at " << utils::asClock(message->date);
-        d_bot->getApi().sendMessage(message->chat->id, reply.str());
+        const auto replyMsg = d_bot->getApi().sendMessage(message->chat->id, reply.str(), false, 0, d_panelResponseKeyboard, "Markdown");
+
+        d_bot->db() << "insert into records (chat, name, arg, time, msgId) values(?, ?, ?, ?, ?);"
+                    << message->chat->id << "sleep" << action << message->date << replyMsg->messageId;
     }
 
     void RecordsPanel::onLastSleep(Message message)
@@ -103,12 +108,13 @@ namespace nbrecords
 
     void RecordsPanel::onDiaper(Message message)
     {
-        d_bot->db() << "insert into records (chat, name, arg, time) values(?, ?, ?, ?);"
-                    << message->chat->id << "diaper" << nullptr << message->date;
 
         std::stringstream reply;
         reply << "Diaper change at " << utils::asClock(message->date);
-        d_bot->getApi().sendMessage(message->chat->id, reply.str());
+        const auto replyMsg = d_bot->getApi().sendMessage(message->chat->id, reply.str(), false, 0, d_panelResponseKeyboard, "Markdown");
+
+        d_bot->db() << "insert into records (chat, name, arg, time, msgId) values(?, ?, ?, ?, ?);"
+                    << message->chat->id << "diaper" << nullptr << message->date << replyMsg->messageId;
     }
 
     void RecordsPanel::onLastDiaper(Message message)
@@ -116,4 +122,10 @@ namespace nbrecords
         d_bot->getApi().sendMessage(message->chat->id, d_stats.lastDiaper(message->chat->id));
     }
 
+    void RecordsPanel::onLastDeleteRecord(CallbackQuery query)
+    {
+        const auto msgId = query->message->messageId;
+        d_bot->db() << "delete from records where msgId = ?" << msgId;
+        d_bot->getApi().deleteMessage(query->message->chat->id, msgId);
+    }
 } // namespace nbrecords
