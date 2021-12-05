@@ -5,34 +5,37 @@
 #include "Stats.h"
 #include "Types.h"
 
-namespace nbrecords {
-
-class NBRecordsBot;
-class RecordsPanel : public Handler<RecordsPanel>
+namespace nbrecords
 {
-public:
-    RecordsPanel(NBRecordsBot*);
 
-    void show(std::int64_t);
+    class NBRecordsBot;
+    class RecordsPanel : public Handler<RecordsPanel>
+    {
+    public:
+        RecordsPanel(NBRecordsBot *);
 
-    // Handlers
-    void onFeedLeft(Message);
-    void onFeedRight(Message);
-    void onLastFeed(Message);
-    void onSleepStart(Message);
-    void onSleepStop(Message);
-    void onLastSleep(Message);
-    void onDiaper(Message);
-    void onLastDiaper(Message);
+        void show(std::int64_t);
 
-private:
-    NBRecordsBot* d_bot;
-    ReplyKeyboard d_keyboard;
-    Stats d_stats;
+        // Handlers
+        void onFeedLeft(Message);
+        void onFeedSpoon(Message);
+        void onFeedBottle(Message);
+        void onFeedRight(Message);
+        void onLastFeed(Message);
+        void onSleepStart(Message);
+        void onSleepStop(Message);
+        void onLastSleep(Message);
+        void onDiaper(Message);
+        void onLastDiaper(Message);
 
-    void feed(Message, std::string);
-    void sleep(Message, std::string);
-};
+    private:
+        NBRecordsBot *d_bot;
+        ReplyKeyboard d_keyboard;
+        Stats d_stats;
+
+        void feed(Message, std::string);
+        void sleep(Message, std::string);
+    };
 
 } // namespace nbrecords
 #endif // RECORDSPANEL_H
