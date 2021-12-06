@@ -26,7 +26,7 @@ namespace nbrecords
         d_panelResponseKeyboard = utils::createInlineKeyboard({{del}});
 
         d_bot->addReplyHandler(feedSpoon, asHandler(&RecordsPanel::onFeedSpoon));
-        d_bot->addReplyHandler(feedBottle, asHandler(&RecordsPanel::onFeedRight));
+        d_bot->addReplyHandler(feedBottle, asHandler(&RecordsPanel::onFeedBottle));
         d_bot->addReplyHandler(lastFeed, asHandler(&RecordsPanel::onLastFeed));
         d_bot->addReplyHandler(sleepStart, asHandler(&RecordsPanel::onSleepStart));
         d_bot->addReplyHandler(sleepStop, asHandler(&RecordsPanel::onSleepStop));
@@ -92,8 +92,9 @@ namespace nbrecords
     {
 
         std::stringstream reply;
-        action[0] = toupper(action[0]);
-        reply << action << " sleeping"
+        std::string actionMsg = action;
+        actionMsg[0] = toupper(action[0]);
+        reply << actionMsg << " sleeping"
               << " at " << utils::asClock(message->date);
         const auto replyMsg = d_bot->getApi().sendMessage(message->chat->id, reply.str(), false, 0, d_panelResponseKeyboard, "Markdown");
 
